@@ -54,8 +54,6 @@ The deployed application consists of:
 
 ---
 
-## Directory Structure
-
 ## Setup Instructions
 
 ### Prerequisites
