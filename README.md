@@ -84,6 +84,14 @@ The deployed application consists of:
 
 ---
 
+### Accessing the Application
+
+- The Kubernetes manifests include an **Ingress** resource.
+- This Ingress provisions an AWS Load Balancer that exposes the frontend and backend services externally.
+- You can access the application via the Load Balancer's DNS name provided by the Ingress.
+
+---
+
 ## Notes
 
 - Ensure CodePipeline environments have required IAM roles and permissions.
