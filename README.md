@@ -41,9 +41,9 @@ In both regions, the project provisions an **EKS cluster** to deploy a **3-tier 
 
 The deployed application consists of:
 
-- **Frontend**: React or similar SPA hosted on EKS
+- **Frontend**: React single-page application (SPA) hosted on EKS
 - **Backend**: Node.js/Express API server running in EKS
-- **Database**: Amazon RDS (MySQL or PostgreSQL)
+- **Database**: Amazon RDS MySQL instance
 
 ---
 
