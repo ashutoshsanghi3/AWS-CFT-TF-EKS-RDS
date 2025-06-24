@@ -56,3 +56,51 @@ The deployed application consists of:
 
 ## Directory Structure
 
+## Setup Instructions
+
+### Prerequisites
+
+- AWS CLI configured with appropriate permissions
+- AWS CodePipeline and CodeBuild configured in both regions
+- Docker installed for building images locally if needed
+- Access to SonarQube server with authentication token
+- Git installed
+
+---
+
+### Deploying in Region 1 (CloudFormation)
+
+1. Run the **CloudFormation stack creation CodePipeline** to provision infrastructure.
+2. Run the **application CodePipeline** which:
+   - Executes SonarQube scans
+   - Builds Docker images
+   - Pushes images to ECR
+   - Deploys app manifests to EKS
+
+---
+
+### Deploying in Region 2 (Terraform)
+
+1. Apply Terraform configurations either manually or via the Terraform CodePipeline.
+2. Run the **application CodePipeline** (similar to Region 1) for SonarQube scan, build, and deploy.
+
+---
+
+## Notes
+
+- Ensure CodePipeline environments have required IAM roles and permissions.
+- Kubernetes manifests use image tags generated dynamically during builds.
+- Secrets like DB credentials are stored securely using Kubernetes Secrets.
+- Adjust region-specific parameters and secrets in the pipeline environment variables.
+
+---
+
+## Contact / Support
+
+For issues or questions, please raise an issue on this repository or contact the maintainer.
+
+---
+
+## License
+
+Specify your license here (e.g., MIT, Apache 2.0).
