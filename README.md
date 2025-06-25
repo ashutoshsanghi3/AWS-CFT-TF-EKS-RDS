@@ -92,9 +92,32 @@ The deployed application consists of:
 
 ---
 
-## Notes
+## Route 53 Failover Routing Configuration
 
+To provide high availability and automatic failover between the two regions (CloudFormation-based and Terraform-based), this project uses **Route 53 failover routing** for the application domain:
+
+- **Domain:** `studentteacher.threetierashutoshproject1197.xyz`
+- **Failover Configuration:**
+  - Two Route 53 A (or Alias) records are created under this domain, each pointing to the AWS Load Balancers provisioned by the two infrastructure setups:
+    - **Primary Record:** Points to the CloudFormation provisioned Load Balancer in Region 1.
+    - **Secondary (Failover) Record:** Points to the Terraform provisioned Load Balancer in Region 2.
+  - Health checks are configured on the primary load balancer's endpoint to detect availability.
+  - If the health check fails, Route 53 automatically fails over DNS resolution to the secondary load balancer.
+  
+### Benefits
+- Users are automatically routed to the healthy application endpoint without manual intervention.
+- Provides multi-region resilience and high availability.
+
+### Implementation Notes
+- Ensure both load balancers have DNS names registered as Alias targets in Route 53.
+- Create appropriate health checks targeting application endpoints (e.g., `/health` path on the frontend or backend).
+- Update DNS TTL (time-to-live) to a low value (e.g., 60 seconds) for quicker failover response.
+- Configure your SSL certificates accordingly for the domain on both load balancers if using HTTPS.
+
+## Notes
 - Ensure CodePipeline environments have required IAM roles and permissions.
 - Kubernetes manifests use image tags generated dynamically during builds.
 - Secrets like DB credentials are stored securely using Kubernetes Secrets.
 - Adjust region-specific parameters and secrets in the pipeline environment variables.
+
+---
