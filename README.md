@@ -7,7 +7,15 @@ This project demonstrates a multi-region infrastructure and deployment setup on 
 - **AWS CloudFormation (CFT)** for infrastructure provisioning in **one AWS region**.
 - **Terraform (TF)** for infrastructure provisioning in **another AWS region**.
 
-In both regions, the project provisions an **EKS cluster** to deploy a **3-tier application** backed by an **RDS database**. The infrastructure is customized for each region using the respective IaC tool.
+In both regions, the project provisions an **Amazon EKS cluster** to deploy a **3-tier application** backed by an **Amazon RDS database**. The infrastructure is customized per region using the respective IaC tool.
+
+The application deployment pipelines integrate:
+
+- **Route 53 failover routing** to automatically redirect traffic between regions for high availability.
+- **SonarQube** for static code analysis and quality gates during the CI/CD process.
+- **Trivy** for container image vulnerability scanning of the frontend and backend before deployment.
+
+This setup ensures a secure, resilient, and automated multi-region application architecture.
 
 ---
 
@@ -21,7 +29,12 @@ In both regions, the project provisions an **EKS cluster** to deploy a **3-tier 
   - RDS database instance
 - **AWS CodePipeline workflows**:
   - **Pipeline 1**: Creates/updates the CloudFormation stack
-  - **Pipeline 2**: Runs SonarQube scans on the application code, builds Docker images, and deploys the 3-tier app to EKS
+  - **Pipeline 2:**
+    - Runs SonarQube scans on the application code
+    - Builds Docker images for frontend and backend
+    - Performs Trivy vulnerability scans on both images
+    - Pushes the scanned images to Amazon ECR
+    - Deploys application manifests to the EKS cluster
 
 ---
 
@@ -33,7 +46,12 @@ In both regions, the project provisions an **EKS cluster** to deploy a **3-tier 
   - RDS database
 - **AWS CodePipeline workflows**:
   - Pipeline to apply Terraform configurations
-  - Pipeline to perform SonarQube scans, build and push Docker images, and deploy the 3-tier app to the Terraform-provisioned EKS cluster
+  - Application pipeline:
+    - Runs SonarQube scans
+    - Builds Docker images
+    - Performs Trivy vulnerability scans on both frontend and backend images
+    - Pushes secure images to ECR
+    - Deploys application to EKS
 
 ---
 
@@ -54,6 +72,15 @@ The deployed application consists of:
 
 ---
 
+## Trivy Integration (New)
+
+- The pipeline now includes **Trivy vulnerability scans** for both **backend and frontend Docker images**.
+- Trivy helps detect **OS-level CVEs**, language-specific vulnerabilities, and misconfigurations.
+- The build fails if critical or high vulnerabilities are found in any image.
+- This enforces secure image delivery before deployment.
+
+---
+
 ## Setup Instructions
 
 ### Prerequisites
@@ -71,7 +98,7 @@ The deployed application consists of:
 1. Run the **CloudFormation stack creation CodePipeline** to provision infrastructure.
 2. Run the **application CodePipeline** which:
    - Executes SonarQube scans
-   - Builds Docker images
+   - Builds Docker images and scan the images (Trivy)
    - Pushes images to ECR
    - Deploys app manifests to EKS
 
@@ -80,7 +107,7 @@ The deployed application consists of:
 ### Deploying in Region 2 (Terraform)
 
 1. Apply Terraform configurations either manually or via the Terraform CodePipeline.
-2. Run the **application CodePipeline** (similar to Region 1) for SonarQube scan, build, and deploy.
+2. Run the **application CodePipeline** (similar to Region 1) for SonarQube scan, Trivy scan, build, and deploy.
 
 ---
 
@@ -103,10 +130,7 @@ To provide high availability and automatic failover between the two regions (Clo
     - **Secondary (Failover) Record:** Points to the Terraform provisioned Load Balancer in Region 2.
   - Health checks are configured on the primary load balancer's endpoint to detect availability.
   - If the health check fails, Route 53 automatically fails over DNS resolution to the secondary load balancer.
-  
-### Benefits
-- Users are automatically routed to the healthy application endpoint without manual intervention.
-- Provides multi-region resilience and high availability.
+
 
 ### Implementation Notes
 - Ensure both load balancers have DNS names registered as Alias targets in Route 53.
@@ -121,3 +145,12 @@ To provide high availability and automatic failover between the two regions (Clo
 - Adjust region-specific parameters and secrets in the pipeline environment variables.
 
 ---
+
+## Benefits
+
+- Users are automatically routed to the healthy application endpoint without manual intervention.
+- Provides **multi-region resilience and high availability**.
+- Enables **security-first CI/CD** with SonarQube and Trivy scans.
+- Ensures **automated failover** using Route 53 health checks.
+- Delivers **fully automated pipelines** for infrastructure provisioning and application deployment.
+
