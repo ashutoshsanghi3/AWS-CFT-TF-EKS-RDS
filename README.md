@@ -1,5 +1,17 @@
 # AWS-CFT-TF-EKS-RDS
 
+## GitHub Repositories
+
+- **CloudFormation (Region 1):**  
+  🔗 https://github.com/ashutoshsanghi3/Student-Teacher-Portal  
+  *(Contains: CloudFormation.yaml, buildspec.yaml)*
+
+- **Terraform (Region 2):**  
+  🔗 https://github.com/ashutoshsanghi3/TF-EKS-RDS  
+  *(Contains: All .tf files for VPC, EKS, RDS, etc.)*
+
+---
+
 ## Overview
 
 This project demonstrates a multi-region infrastructure and deployment setup on AWS using two Infrastructure as Code (IaC) tools:
@@ -14,8 +26,9 @@ The application deployment pipelines integrate:
 - **Route 53 failover routing** to automatically redirect traffic between regions for high availability.
 - **SonarQube** for static code analysis and quality gates during the CI/CD process.
 - **Trivy** for container image vulnerability scanning of the frontend and backend before deployment.
+- **Prometheus and Grafana** for Kubernetes-native monitoring and dashboard visualization.
 
-This setup ensures a secure, resilient, and automated multi-region application architecture.
+This setup ensures a secure, resilient, observable, and automated multi-region application architecture.
 
 ---
 
@@ -72,12 +85,28 @@ The deployed application consists of:
 
 ---
 
-## Trivy Integration (New)
+## Trivy Integration
 
 - The pipeline now includes **Trivy vulnerability scans** for both **backend and frontend Docker images**.
 - Trivy helps detect **OS-level CVEs**, language-specific vulnerabilities, and misconfigurations.
 - The build fails if critical or high vulnerabilities are found in any image.
 - This enforces secure image delivery before deployment.
+
+---
+
+## Prometheus & Grafana Monitoring (New)
+
+- **Prometheus** is deployed using Helm charts to scrape Kubernetes and application metrics:
+  - kubelet, kube-state-metrics, cAdvisor
+  - Optional exporters for MySQL and Trivy scan metrics
+
+- **Grafana** is configured with pre-built dashboards showing:
+  - Pod CPU & memory usage
+  - HTTP request rate and error codes
+  - Database performance metrics
+  - Kubernetes cluster health
+
+- This stack provides a **real-time observability layer** for application performance and infrastructure health.
 
 ---
 
@@ -152,5 +181,6 @@ To provide high availability and automatic failover between the two regions (Clo
 - Provides **multi-region resilience and high availability**.
 - Enables **security-first CI/CD** with SonarQube and Trivy scans.
 - Ensures **automated failover** using Route 53 health checks.
+- Adds **real-time observability** using Prometheus and Grafana.
 - Delivers **fully automated pipelines** for infrastructure provisioning and application deployment.
 
